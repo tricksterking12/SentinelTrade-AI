@@ -1,4 +1,4 @@
-🛰️ SentinelTrade AI
+### 🛰️ SentinelTrade AI #
 
 Secure. Self-Hosted. Human-Validated. > Next-generation autonomous long-term asset management for the private cloud.
 
