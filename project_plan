@@ -1,0 +1,112 @@
+SentinelTrade AI: Comprehensive Project Plan
+
+Version: 1.1
+Objective: A self-hosted, low-volume long-term investment AI targeting a 4%+ annual return using a Multi-Agent system on private hardware.
+
+1. System Architecture (The "Mental Model")
+
+The system is divided into four distinct logical zones to ensure security and modularity.
+
+A. The Brain (Inference Zone)
+
+Role: Financial analysis, sentiment extraction, and trade thesis generation.
+
+Hardware: Proxmox VM with GPU Passthrough (6x GPUs available).
+
+Model: Llama-3 or Mistral via vLLM / Ollama.
+
+Input: RSS News feeds, SEC filings, Market technicals.
+
+B. The Core (Execution Zone)
+
+Role: Portfolio management, risk calculation, and broker communication.
+
+Logic: Multi-Agent (Analyst -> Risk Manager -> Executor).
+
+Broker: Alpaca Markets (Paper/Live).
+
+Persistence: PostgreSQL for trade logs and audit trails.
+
+C. The Sentinel (Human-in-the-Loop Zone)
+
+Role: Zero-Trust safety layer.
+
+Logic: If trade_value > 2% of portfolio OR daily_turnover > threshold, state = PAUSED.
+
+Notification Stack:
+
+Email: Full trade thesis via SMTP.
+
+SMS: Critical alerts via Twilio.
+
+Dashboard: UI notification with Approve/Deny functionality.
+
+D. The Gateway (Interaction Zone)
+
+Dashboard: React/Tailwind frontend for trade management.
+
+Security: Authelia MFA + Nginx Reverse Proxy (TLS 1.3).
+
+Home Assistant Bridge: Scoped REST API (Read-only) for portfolio monitoring.
+
+2. Infrastructure & Deployment
+
+Hypervisor: Proxmox VE.
+
+Networking: Gigabit/Fiber-ready.
+
+Isolation: The Core VM has no inbound access from the public web; only the Gateway is exposed via proxy.
+
+3. Data Flow & Security Guardrails
+
+Sentiment Check: Brain analyzes news and outputs a Confidence Score (1-10).
+
+Risk Check: Core calculates Position Size based on the score and current Drawdown.
+
+HITL Trigger: If the move is "Risky" or "Large," execution halts.
+
+User Approval: Manual sign-off required via the Secure Dashboard.
+
+Execution: Core sends signed order to Alpaca.
+
+4. Implementation Roadmap (Milestones)
+
+Phase 1: Foundation (Weeks 1-2)
+
+[ ] Initialize GitHub Repository with modular structure.
+
+[ ] Configure Proxmox VMs and verify GPU passthrough.
+
+[ ] Script basic Alpaca connectivity (Paper Trading).
+
+Phase 2: Intelligence & Risk (Weeks 3-4)
+
+[ ] Deploy local LLM inference server.
+
+[ ] Implement the "Analyst Agent" for news sentiment.
+
+[ ] Build the Risk Manager logic for 5% max loss stop-gaps.
+
+Phase 3: The Sentinel & UI (Weeks 5-6)
+
+[ ] Build the React Management Dashboard.
+
+[ ] Integrate Twilio/Email notification system.
+
+[ ] Finalize the HITL "Approve/Deny" workflow.
+
+Phase 4: Integration & Live (Week 7+)
+
+[ ] Establish Home Assistant read-only bridge.
+
+[ ] Perform 1-week dry run in Paper Trading.
+
+[ ] Go live with Seed Capital.
+
+5. Security Summary
+
+Secret Management: No .env files in Git; use Vault or Local Env Vars.
+
+HA Scoping: Home Assistant cannot execute trades (no API keys shared).
+
+Encrypted Communication: All internal/external traffic via TLS.
