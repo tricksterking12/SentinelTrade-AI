@@ -1,0 +1,22 @@
+# Secrets
+.env
+secrets/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+
+# Node/React
+node_modules/
+build/
+dist/
+.eslintcache
+
+# Databases & Logs
+*.log
+*.sqlite
+data/*.csv
