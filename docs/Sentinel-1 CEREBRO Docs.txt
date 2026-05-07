@@ -1,0 +1,24 @@
+[S-1] CEREBRO: AI Inference Brain
+Status: Awaiting Hardware (Tesla P100)
+
+Technical Specifications
+Type: Virtual Machine
+Machine: Q35 | BIOS: OVMF (UEFI)
+OS: Ubuntu 24.04 LTS Server
+CPU: 6 Cores (Type: Host)
+RAM: 24GB (Static / No Ballooning)
+Storage: 64GB (local-lvm)
+GPU: Tesla P100 16GB (PCI Passthrough)
+Network Bridge: vmbr4 (Isolated Fabric)
+Hardware Specifics (Dell R540)
+Cooling: card is passive; blue plastic air shroud MUST be installed.
+Power: Proprietary Dell R540 GPU power cable required.
+
+Living TODO Checklist
+[ ] Enable IOMMU and Above 4GB Decoding in R540 BIOS.
+[ ] Install NVIDIA Data Center Drivers (535+).
+[ ] Install Ollama / vLLM.
+[ ] Verify GPU visibility with nvidia-smi.
+[ ] Assign Static IP 10.0.0.2 on vmbr4.
+
+Created: May 2024 | Version 1.0

@@ -1,0 +1,22 @@
+[S-0] BEACON: Gateway & Management
+Status: Initializing (Shell Created)
+
+Technical Specifications
+Type: LXC Container (Privileged)
+OS: Alpine Linux 3.20
+CPU: 1 Core
+RAM: 512 MiB
+Storage: 8GB (local-lvm)
+Network Bridge: vmbr1 (DHCP)
+
+Role
+S0-BEACON serves as the primary entry point for the SentinelTrade project. It will host the Nginx Proxy Manager to route external traffic and the Grafana dashboards for monitoring performance.
+
+Living TODO Checklist
+[ ] Configure DHCP Reservation in Router for MAC address.
+[ ] Run apk update && apk add curl htop.
+[ ] Install Nginx Proxy Manager.
+[ ] Setup SSL Certificates for remote monitoring.
+[ ] Install Grafana for data visualization.
+
+Created: May 2026 | Version 1.0
