@@ -6,7 +6,7 @@
 set -e
 
 REPO_URL="https://github.com/tricksterking12/SentinelTrade-AI.git"
-INSTALL_PATH="/var/www/npm"
+INSTALL_PATH="/opt/sentinel"
 
 echo "--------------------------------------------------------"
 echo "SENTINELTRADE MASTER INSTALLER V3.0"
@@ -39,7 +39,7 @@ if [ ! -d "$INSTALL_PATH/.git" ]; then
 else
     echo "Updating SentinelTrade-AI..."
     cd $INSTALL_PATH
-    git pull origin main
+    git pull
 fi
 
 # --- 4. Node-Specific Scaffolding (S0-Beacon) ---
@@ -77,11 +77,13 @@ printf 'server {
 
     location /api/ {
         proxy_pass http://127.0.0.1:3000/;
-        proxy_set_header Host $host;
+        proxy_set_header Host \044host;
+        proxy_set_header X-Real-IP \044remote_addr;
+        proxy_set_header X-Forwarded-For \044proxy_add_x_forwarded_for;
     }
 
     location / {
-        try_files $uri $uri/ /index.html;
+        try_files \044uri \044uri/ /index.html;
     }
 }\n' "$INSTALL_PATH" > /etc/nginx/conf.d/sentinel-dashboard.conf
 

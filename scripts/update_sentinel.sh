@@ -4,17 +4,17 @@
 
 set -e
 
-INSTALL_PATH="/var/www/npm"
+INSTALL_PATH="/opt/sentinel"
 cd $INSTALL_PATH
 
 echo "Checking for SentinelTrade-AI updates..."
 
 # Fetch metadata
-git fetch origin main
+git fetch
 
 # Compare local HEAD with remote
 LOCAL_HEAD=$(git rev-parse HEAD)
-REMOTE_HEAD=$(git rev-parse origin/main)
+REMOTE_HEAD=$(git rev-parse @{u})
 
 if [ "$LOCAL_HEAD" = "$REMOTE_HEAD" ]; then
     echo "System is up to date."
@@ -36,7 +36,7 @@ done
 
 # Perform Update
 git stash
-git pull origin main
+git pull
 
 if [ "$CODE_CHANGES" = true ]; then
     echo "Code changes detected. Triggering production rebuild..."
