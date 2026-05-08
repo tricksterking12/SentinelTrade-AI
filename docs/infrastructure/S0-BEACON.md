@@ -17,7 +17,7 @@ BEACON operates on the primary external bridge to manage incoming traffic and pr
 - **Protocol:** DHCP (Reservation Required)
 - **Port 81:** NPM Admin UI (Production Build)
 - **Port 3000:** NPM Backend & Grafana (Conflict Managed)
-- **Tailscale:** Integration in progress (Targeting `beacon-admin` and `beacon-metrics` DNS names)
+- **Tailscale:** Blocked: Pending Host Action (See `docs/PENDING_HOST_ACTIONS.md`)
 
 ## Hardware Dependencies (Dell R540)
 - **Cooling:** Standard Dell PowerEdge R540 thermal profile. Ensure the chassis lid is closed to maintain proper airflow over the CPU heatsinks.
