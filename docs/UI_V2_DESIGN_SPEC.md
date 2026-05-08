@@ -1,44 +1,53 @@
-# SentinelTrade UI V2: Design Specification
+# SentinelTrade UI V2.5: Design Specification
 
 ## 1. Visual Language & Aesthetics
 *   **Theme - Sentinel Mode:** "Obsidian & Emerald"
-    *   Primary BG: `#0a0a0a`
+    *   Primary BG: `#0a0a0a` (Obsidian)
     *   Accent: `#10b981` (Emerald)
 *   **Theme - Admin Mode:** "Carbon & Cobalt"
-    *   Primary BG: `#0f172a`
+    *   Primary BG: `#0f172a` (Carbon)
     *   Accent: `#3b82f6` (Cobalt)
 *   **Typography:**
     *   Headings/UI: **Inter**
     *   Financial/System Data: **JetBrains Mono**
-*   **Effects:** Glassmorphism (`backdrop-blur`), subtle border glows, and Framer Motion transitions.
+*   **Effects:** Glassmorphism (`backdrop-blur`), dynamic border glows, and Framer Motion spring transitions.
 
-## 2. Global Utility Shell (Top Bar)
-A persistent navigation layer:
-*   **Intelligence Notifications:** Bell icon with a dynamic "Pulse" dot for unread AI thesis updates.
-*   **User Identity:** Shows current role (Sentinel/Admin) and provides a "Logout" button.
-*   **System Settings:** Slide-out right drawer for chart density and API connection toggles.
+## 2. Structural Layout: Persistent Sidebar
+The navigation has evolved from a TopBar to a stateful, collapsible **Sidebar**.
+*   **Identity Header:** Displays the `logo.png` and version signature (V2.5).
+*   **Contextual Tabs:**
+    *   **Sentinel View:** Dashboard, Market Intel, Active Trades.
+    *   **Admin View (RBAC Protected):** Node Health, User Management, Global Kill-Switch.
+*   **State:** Collapsible to icon-only mode to maximize workspace for charts.
 
-## 3. Integrated Login Portal
-*   **Feature:** Sleek landing page with a blurred background ticker tape.
-*   **Security:** JWT-based entry point (Mocked logic in V2).
+## 3. Global Utility Shell (Top Bar)
+A streamlined layer for global status and identity:
+*   **Cluster Vitality:** Real-time indicator of system-wide operational status.
+*   **Intelligence Notifications:** Bell icon with a dynamic "Pulse" for S1-CEREBRO updates.
+*   **Identity Signature:** User avatar with a dropdown menu for mode-switching and session termination.
 
-## 4. Sentinel Dashboard (User Mode)
-*   **Portfolio Pulse Chart:** High-performance Area Chart using `recharts` for tracking value trends.
-*   **AI Thesis Feed:** Vertical timeline view with confidence meters from S1-CEREBRO.
-*   **Active Strategies:** Real-time status cards for Mean Reversion and Sentiment algorithms.
+## 4. Secure Intelligence Portal (Login)
+*   **Visuals:** Low-opacity, blurred `login-bg.png` background with a glassmorphism central portal.
+*   **Features:** Moving ticker tape for live market sentiment and a "Persist Session" (Remember Me) capability using `localStorage`.
 
-## 5. Command Center (Admin Mode)
-*   **Node Vitality Grid:** Real-time gauges for CPU/RAM/Thermals for BEACON, CEREBRO (Tesla P100), and KINETIC.
-*   **Active Task Orchestrator:** Queue system for monitoring internal API operations and order fills.
-*   **Emergency Stop:** Global kill-switch for all active strategies.
+## 5. View Specifications
+### A. Sentinel Dashboard (User Mode)
+*   **Portfolio Pulse:** High-density Area Chart (`recharts`) with animated gradients.
+*   **Intelligence Feed:** Timeline of AI theses with confidence meters.
+*   **Active Strategies:** Strategy status cards with ROI and Allocation metrics.
+
+### B. Command Center (Admin Mode)
+*   **Hero Banner:** Utilizes `admin-hero.png` as a wide operational header.
+*   **Node Vitality Grid:** Real-time gauges for CPU, RAM, and GPU (Tesla P100) thermals.
+*   **User Management:** Administrative table for authorization and access group auditing.
 
 ## 6. Technical Stack
 *   **Framework:** React 18 (TypeScript)
 *   **Build Tool:** Vite
+*   **Utility Layer:** Tailwind CSS
 *   **Charts:** Recharts
 *   **Icons:** Lucide React
 *   **Animations:** Framer Motion
-*   **Styling:** CSS Variables + Glassmorphism
 
 ---
 *Specified by SentinelTrade Systems Architect - 2026-05-08*
