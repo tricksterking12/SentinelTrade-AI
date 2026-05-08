@@ -1,99 +1,112 @@
-### 🛰️ SentinelTrade AI #
+# <p align="center">🛡️ SentinelTrade AI</p>
 
-Secure. Self-Hosted. Human-Validated. > Next-generation autonomous long-term asset management for the private cloud.
+---
 
-🎯 The Mission
+### 🌐 Project Vision
+SentinelTrade AI is a sophisticated, self-hosted autonomous trading cluster designed for institutional-grade reliability. By distributing intelligence, execution, and management across specialized nodes, the system achieves a robust, scalable architecture for automated market analysis and trade fulfillment.
 
-SentinelTrade AI is a professional-grade, self-hosted autonomous trading system designed to outperform traditional High-Yield Savings Accounts (HYSA) through low-volume, high-conviction long-term investing.
+---
 
-Unlike black-box commercial bots, SentinelTrade runs entirely on your hardware, using your local AI models, and requires your explicit approval for high-impact decisions.
+### 📊 System Status
 
-🧠 System Architecture
+| Node | Name | Role | OS / Platform | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **S-0** | **BEACON** | Gateway & UI | Alpine 3.20 (LXC) | 🟢 Production |
+| **S-1** | **CEREBRO** | AI Intelligence | Ubuntu 24.04 (VM) | 🟡 Initializing |
+| **S-2** | **KINETIC** | Executioner | Debian 12 (VM) | ⚪ Planned |
 
-1. The Intelligence Layer (The Brain)
+---
 
-Running on dedicated Proxmox VMs with GPU passthrough, our local LLM (Mistral/Llama) performs:
+### 🏗️ Distributed Architecture Map
 
-Contextual Sentiment: Real-time analysis of SEC filings and financial news.
+The cluster is organized into a node-centric schema to isolate concerns and optimize performance:
 
-Trade Reasoning: Every trade intent is accompanied by a natural language "Thesis" explaining why.
+#### 📡 [S0-Beacon] Gateway Node
+The traffic controller of the cluster.
+- **Components:** Nginx Proxy Manager (NPM), Unified React Dashboard, Grafana Metrics.
+- **Responsibility:** External ingress, authentication (RBAC), and cluster-wide telemetry.
 
-2. The Execution Layer (The Core)
+#### 🧠 [S1-Cerebro] Intelligence Node
+The brain of the operation.
+- **Hardware:** Dedicated **NVIDIA Tesla P100** (PCI Passthrough).
+- **Responsibility:** Running LLM inference (Ollama/vLLM) to generate market theses and sentiment analysis.
 
-Broker: Integrated via Alpaca Markets API.
+#### ⚡ [S2-Kinetic] Execution Node
+The action layer.
+- **Components:** Python Trade Agents, Alpaca API Bridge, TimescaleDB.
+- **Responsibility:** Order management, risk-guard oversight, and trade history persistence.
 
-Strategy: Swing-trading and trend-following (multi-day/week holds).
+---
 
-Risk Engine: Hardcoded mathematical guardrails to prevent "flash-crash" logic errors.
+### 📂 Repository Structure
 
-3. The Safety Layer (Human-In-The-Loop)
+```text
+/
+├── .github/workflows/   # CI/CD pipelines
+├── docs/                # Project-wide documentation & specs
+├── scripts/             # V3 Master Suite (Install/Update)
+│
+├── S0-Beacon/           # Gateway Node Source
+│   ├── frontend/        # React 18 + Vite (Obsidian UI)
+│   ├── services/        # Nginx & OpenRC configs
+│   └── public/assets/   # Brand Identity Assets
+│
+├── S1-Cerebro/          # AI Inference Node Source
+│   ├── brain/           # Inference orchestration scripts
+│   └── drivers/         # GPU / Tesla P100 setup tools
+│
+└── S2-Kinetic/          # Execution Node Source
+    ├── backend/         # Python Execution Agents
+    └── database/        # PostgreSQL/TimescaleDB schemas
+```
 
-SentinelTrade implements a Zero-Trust execution policy for trades exceeding specific thresholds:
+---
 
-Email/SMS Alerts: Instant notifications via SMTP and Twilio.
+### 🚀 "One-Tap" Installation Guide
 
-MFA Dashboard: Secure approval portal with 2FA requirement.
+Deploy or recover the **S0-Beacon** node using our master automation suite.
 
-🏗️ Hardware Stack
+**Pre-requisites:**
+- Proxmox LXC (Alpine Linux 3.20 template)
+- Minimum 1GB RAM (Allocated for Vite builds)
+- Git access
 
-Hypervisor: Proxmox VE
+**Execute from the Node Terminal:**
+```bash
+curl -sSL https://raw.githubusercontent.com/tricksterking12/SentinelTrade-AI/main/scripts/install.sh | bash
+```
 
-Compute: 2x Dedicated GPU Nodes (6x NVIDIA GPUs total)
+---
 
-Network: Gigabit Uplink (Fiber-Ready)
+### 🎨 Visual Asset Registry & Design System
+SentinelTrade utilizes a high-fidelity visual system built with **Tailwind CSS**, **Framer Motion**, and **Recharts**.
 
-Storage: PostgreSQL for high-fidelity trade journaling.
+- **Themes:**
+    - `Obsidian & Emerald`: Default **Sentinel Mode** for performance tracking.
+    - `Carbon & Cobalt`: Secure **Admin Mode** for node management.
+- **Location:** All branding assets (Logo, Backgrounds, Hero Banners) are housed in `/S0-Beacon/public/assets/`.
 
-🗺️ Strategic Roadmap
+---
 
-Phase 1: Foundation 🧱
+### 🔄 Maintenance & Auto-Updates
+The cluster stays synchronized via the node-centric update cycle.
 
-[ ] Proxmox VM Environment Setup
+**Manual Update:**
+```bash
+bash scripts/update_sentinel.sh
+```
+The update script automatically:
+1. Fetches metadata from GitHub.
+2. Identifies if code changes exist (ignoring `/docs`).
+3. Performs a memory-optimized rebuild only when necessary.
 
-[ ] Alpaca Paper Trading Integration
+---
 
-[ ] Basic Technical Analysis (RSI/Moving Averages) logic
+### 📜 Technical Stack
+- **UI:** React 18, Vite, Tailwind CSS, Recharts, Framer Motion.
+- **Backend:** Python 3.12+, Node.js 20+ (ESM).
+- **Services:** OpenResty, Grafana, Tailscale.
+- **Infrastructure:** Proxmox VE, Dell PowerEdge R540.
 
-Phase 2: Cognitive Integration 🧠
-
-[ ] GPU Passthrough & vLLM Deployment
-
-[ ] Sentiment Analysis Pipeline (RSS/Twitter/News)
-
-[ ] Automated Trade Thesis Generation
-
-Phase 3: The Sentinel 🛡️
-
-[ ] HITL Notification System (Email/SMS)
-
-[ ] React Management Dashboard
-
-[ ] Read-only Home Assistant Data Bridge
-
-🔒 Security & Privacy
-
-Self-Hosted: No financial data ever leaves your local network except to the broker.
-
-Read-Only HA: Home Assistant integration uses a scoped REST API to ensure your smart home cannot execute trades.
-
-Encrypted: All web traffic is forced through TLS 1.3 via Nginx Proxy Manager.
-
-📈 Goals
-
-Metric
-
-Target
-
-Annualized Return
-
-> 4.0% (Outperform HYSA)
-
-Max Drawdown
-
-< 10%
-
-Human Intervention
-
-Required for trades > 2% Portfolio
-
-Developed with ❤️ for the Private Cloud.
+---
+*Specified by SentinelTrade Systems Architect - 2026-05-08*
