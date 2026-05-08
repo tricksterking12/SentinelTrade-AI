@@ -40,13 +40,25 @@ echo 'export GF_SERVER_HTTP_PORT=3000' >> /etc/conf.d/grafana
 sed -i 's/^;http_addr =.*/http_addr = 0.0.0.0/' /etc/grafana.ini
 rc-service grafana restart
 
-# --- 4. NPM Backend Provisioning ---
-echo "[4/7] Provisioning Nginx Proxy Manager Backend..."
+# --- 4. NPM Backend & Frontend Provisioning ---
+echo "[4/7] Provisioning Nginx Proxy Manager (Full Build)..."
 mkdir -p /var/www/npm
 if [ ! -d "/var/www/npm/.git" ]; then
     git clone https://github.com/NginxProxyManager/nginx-proxy-manager.git /var/www/npm
 fi
 
+# Frontend Build
+echo "Building NPM Frontend..."
+cd /var/www/npm/frontend
+npm install
+# Fix known type errors in NPM source
+cd src/locale && if [ ! -L "lang" ]; then ln -s src lang; fi
+cd ../..
+./node_modules/.bin/vite build
+rm -rf node_modules
+
+# Backend Setup
+echo "Building NPM Backend..."
 cd /var/www/npm/backend
 npm install --omit=dev
 
