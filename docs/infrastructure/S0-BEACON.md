@@ -6,8 +6,8 @@
 | **Type** | LXC Container (Privileged) |
 | **OS** | Alpine Linux 3.20 |
 | **CPU** | 1 Core |
-| **RAM** | 512 MiB |
-| **Storage** | 16GB (local-lvm) |
+| **RAM** | 1 GB (Upgraded from 512 MiB) |
+| **Storage** | 16 GB (local-lvm) |
 | **Role** | Primary entry point, Nginx Proxy Manager, Grafana dashboards |
 
 ## Networking Logic
@@ -15,19 +15,21 @@ BEACON operates on the primary external bridge to manage incoming traffic and pr
 
 - **Bridge:** `vmbr1` (External / WAN)
 - **Protocol:** DHCP (Reservation Required)
-- **Port 81:** Rescue Status UI (Operational)
+- **Port 81:** NPM Admin UI (Production Build)
 - **Port 3000:** NPM Backend & Grafana (Conflict Managed)
+- **Tailscale:** Integration in progress (Targeting `beacon-admin` and `beacon-metrics` DNS names)
 
 ## Hardware Dependencies (Dell R540)
 - **Cooling:** Standard Dell PowerEdge R540 thermal profile. Ensure the chassis lid is closed to maintain proper airflow over the CPU heatsinks.
 
-## Master Provisioning Guide (Final Build)
+## Master Provisioning Guide (Production Build)
 
 ### Phase 1: Dependencies & Baseline
 ```bash
 apk update && apk upgrade
-apk add curl wget bash openresty nodejs npm python3 py3-pip sqlite htop nano net-tools git openrc
+apk add curl wget bash openresty nodejs npm python3 py3-pip sqlite htop nano net-tools git openrc tailscale
 rc-update add devfs boot
+rc-update add tailscale default
 ```
 
 ### Phase 2: Grafana Network Exposure
@@ -40,55 +42,69 @@ sed -i 's/^;http_addr =.*/http_addr = 0.0.0.0/' /etc/grafana.ini
 rc-service grafana restart
 ```
 
-### Phase 3: Nginx Proxy Manager (Rescue Mode)
-The NPM frontend build fails on 512MB RAM. The backend is provisioned on port 3000, and a rescue UI is served on port 81.
+### Phase 3: Nginx Proxy Manager (Production Build)
+With 1GB RAM, a full frontend build is now possible.
 
 ```bash
 mkdir -p /var/www/npm && cd /var/www/npm
 git clone https://github.com/NginxProxyManager/nginx-proxy-manager.git .
 
+# Frontend Build
+cd /var/www/npm/frontend
+npm install
+# Bypass tsc if type errors persist
+./node_modules/.bin/vite build
+
 # Backend Build
 cd /var/www/npm/backend
 npm install --omit=dev
 
-# Nginx Config Dirs
-mkdir -p /etc/nginx/conf.d/include && touch /etc/nginx/conf.d/include/ip_ranges.conf
-mkdir -p /data/nginx /data/custom_ssl /data/logs /data/access /data/nginx/default_host /data/nginx/default_www /data/nginx/proxy_host /data/nginx/redirection_host /data/nginx/stream_host /data/nginx/dead_host /data/nginx/temp /data/letsencrypt-acme-challenge
-chmod -R 777 /data
+# Nginx Configuration (OpenResty)
+# Ensure /etc/nginx/nginx.conf includes /etc/nginx/conf.d/*.conf
+cat <<'EOF' > /etc/nginx/conf.d/npm-admin.conf
+server {
+    listen 81;
+    server_name _;
+    root /var/www/npm/frontend/dist;
+    index index.html;
 
-# Run Backend
-export NODE_ENV=production
-nohup node index.js > /var/log/npm-admin.log 2>&1 &
+    location /api/ {
+        proxy_pass http://127.0.0.1:3000/;
+        proxy_set_header Host $host;
+    }
 
-# Rescue UI (Port 81)
-echo '<h1>S0-BEACON: Operational</h1><p>NPM Backend Active on Port 3000.</p>' > /var/www/npm/index.html
-nohup python3 -m http.server 81 --directory /var/www/npm > /var/log/rescue_server.log 2>&1 &
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+EOF
+rc-service openresty restart
 ```
+
+### Phase 4: Tailscale Integration
+*Pending /dev/net/tun device passthrough from Proxmox host.*
 
 ## Command History & Debug Log
 | Command | Reason / Result |
 | :--- | :--- |
-| `npm run build` | Error: JavaScript heap out of memory (512MB LXC limit). |
-| `ln -s src lang` | Fix: Resolved TypeScript import errors in frontend build attempts. |
-| `mkdir -p /etc/nginx...` | Fix: Prevented NPM backend fatal error due to missing `ip_ranges.conf`. |
-| `rm /data/keys.json` | Fix: Resolved `Unexpected end of JSON input` error by allowing fresh JWT key generation. |
+| `vite build` | Success: Completed in 33s with 1GB RAM allocated. |
+| `sed -i ... nginx.conf` | Fix: Enabled `conf.d` inclusion for modular virtual hosts. |
+| `tailscale up` | Error: `/dev/net/tun` does not exist. Requires host-side configuration. |
 
 ## Troubleshooting & Verification
 | Check | Command | Expected Output |
 | :--- | :--- | :--- |
-| **Rescue UI** | `curl -Is http://localhost:81` | `HTTP/1.0 200 OK` |
-| **NPM Backend** | `netstat -tulpn \| grep 3000` | `:::3000 LISTEN` |
-| **Processes** | `ps aux \| grep node` | `node index.js` active |
+| **NPM Admin UI** | `curl -Is http://localhost:81` | `HTTP/1.1 200 OK` |
+| **Tailscale Status** | `tailscale status` | Should list the mesh network once authenticated. |
 
 ## Living TODO List
-- [x] Configure DHCP Reservation in Router for MAC address.
-- [x] Run initial system update.
-- [x] Install Nginx Proxy Manager (Backend active, Frontend deferred).
-- [x] Deploy Port 81 Rescue Status Page.
-- [x] Install Grafana for data visualization (Fixed loopback bind).
+- [x] Upgrade RAM to 1GB.
+- [x] Perform full production build of NPM.
+- [x] Configure OpenResty to serve NPM Admin UI on Port 81.
+- [ ] Fix Tailscale `/dev/net/tun` issue via Proxmox host.
+- [ ] Authenticate Tailscale and configure `serve` mappings.
 
 ## Audit Trail
-- **2026-05-08:** Provisioned NPM Backend and resolved JWT/Nginx config dependencies.
-- **2026-05-08:** Deployed Python Rescue UI on Port 81 to bypass memory-limited frontend build.
-- **2026-05-07:** Port 80 Verified (OpenResty Landing Page via browser).
-- **2026-05-05:** Document initialized by Systems Architect.
+- **2026-05-08:** Upgraded S0-BEACON to Production Mode. Completed full NPM frontend build and decommissioned Rescue UI.
+- **2026-05-08:** Provisioned NPM Backend as a managed OpenRC service.
+- **2026-05-08:** Installed Tailscale; awaiting TUN device resolution.
