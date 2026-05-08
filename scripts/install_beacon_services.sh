@@ -1,44 +1,145 @@
 #!/bin/bash
-# SentinelTrade-AI: S0-BEACON Services Installation Script
-# This script automates the successful provisioning of Grafana and NPM Backend.
-# Target: Alpine Linux 3.20 (LXC)
+# SentinelTrade-AI: S0-BEACON Master Production Installation Script
+# Codified by Infrastructure Provisioning Agent - 2026-05-08
+# Target: Alpine Linux 3.20 (LXC) with 1GB+ RAM
 
 set -e
 
-echo "[1/4] Installing Dependencies..."
-apk update && apk upgrade
-apk add curl wget bash openresty nodejs npm python3 py3-pip sqlite htop nano net-tools git openrc
-rc-update add devfs boot
+# --- 1. Environment Validation ---
+echo "[1/7] Validating Environment..."
 
-echo "[2/4] Provisioning Grafana..."
-apk add grafana
+if [[ $EUID -ne 0 ]]; then
+   echo "Error: This script must be run as root."
+   exit 1
+fi
+
+if ! grep -q "Alpine" /etc/os-release; then
+    echo "Error: This script is designed for Alpine Linux."
+    exit 1
+fi
+
+TOTAL_RAM=$(free -m | awk '/Mem:/ {print $2}')
+if [ "$TOTAL_RAM" -lt 950 ]; then
+    echo "Error: S0-BEACON requires at least 1GB of RAM for production builds. Current: ${TOTAL_RAM}MB"
+    exit 1
+fi
+
+# --- 2. Dependency Installation ---
+echo "[2/7] Installing Production Dependencies..."
+apk update && apk upgrade
+apk add curl wget bash openresty nodejs npm python3 py3-pip sqlite htop nano net-tools git openrc tailscale grafana
+rc-update add devfs boot
+rc-update add tailscale default
+rc-update add openresty default
 rc-update add grafana default
+
+# --- 3. Grafana Configuration ---
+echo "[3/7] Configuring Grafana..."
 echo 'export GF_SERVER_HTTP_ADDR=0.0.0.0' > /etc/conf.d/grafana
 echo 'export GF_SERVER_HTTP_PORT=3000' >> /etc/conf.d/grafana
 sed -i 's/^;http_addr =.*/http_addr = 0.0.0.0/' /etc/grafana.ini
 rc-service grafana restart
 
-echo "[3/4] Provisioning Nginx Proxy Manager (Backend)..."
-mkdir -p /var/www/npm && cd /var/www/npm
-if [ ! -d ".git" ]; then
-    git clone https://github.com/NginxProxyManager/nginx-proxy-manager.git .
+# --- 4. NPM Backend Provisioning ---
+echo "[4/7] Provisioning Nginx Proxy Manager Backend..."
+mkdir -p /var/www/npm
+if [ ! -d "/var/www/npm/.git" ]; then
+    git clone https://github.com/NginxProxyManager/nginx-proxy-manager.git /var/www/npm
 fi
 
-cd backend
+cd /var/www/npm/backend
 npm install --omit=dev
 
-# Nginx Configuration Structure
+# Directory Structure for NPM persistence
 mkdir -p /etc/nginx/conf.d/include && touch /etc/nginx/conf.d/include/ip_ranges.conf
 mkdir -p /data/nginx /data/custom_ssl /data/logs /data/access /data/nginx/default_host /data/nginx/default_www /data/nginx/proxy_host /data/nginx/redirection_host /data/nginx/stream_host /data/nginx/dead_host /data/nginx/temp /data/letsencrypt-acme-challenge
 chmod -R 777 /data
 
-# Start Backend
-export NODE_ENV=production
-nohup node index.js > /var/log/npm-admin.log 2>&1 &
+# OpenRC Service for NPM Backend
+cat <<'EOF' > /etc/init.d/npm-admin
+#!/sbin/openrc-run
+description='Nginx Proxy Manager Backend'
+command='/usr/bin/node'
+command_args='index.js'
+directory='/var/www/npm/backend'
+pidfile='/run/npm-admin.pid'
+command_background='yes'
+output_log='/var/log/npm-admin.log'
+error_log='/var/log/npm-admin.log'
 
-echo "[4/4] Deploying Rescue UI (Port 81)..."
-echo '<h1>S0-BEACON: Operational</h1><p>NPM Backend Active on Port 3000. Frontend build deferred due to memory limits.</p>' > /var/www/npm/index.html
-nohup python3 -m http.server 81 --directory /var/www/npm > /var/log/rescue_server.log 2>&1 &
+depend() {
+    need net
+}
 
-echo "Installation Complete."
-echo "Verify Port 81 (Rescue UI) and Port 3000 (NPM Backend/Grafana)."
+start_pre() {
+    checkpath -d -m 0777 /data
+    mkdir -p /etc/nginx/conf.d/include
+}
+EOF
+chmod +x /etc/init.d/npm-admin
+rc-update add npm-admin default
+rc-service npm-admin restart
+
+# --- 5. Sentinel Dashboard Build ---
+echo "[5/7] Building SentinelTrade Dual-Mode Dashboard..."
+mkdir -p /opt/sentinel
+if [ ! -d "/opt/sentinel/.git" ]; then
+    git clone https://github.com/tricksterking12/SentinelTrade-AI.git /opt/sentinel
+else
+    cd /opt/sentinel && git pull origin main
+fi
+
+cd /opt/sentinel/src/web
+npm install
+export NODE_OPTIONS=--max-old-space-size=800
+./node_modules/.bin/vite build
+
+# Cleanup build artifacts to save space
+rm -rf node_modules
+
+# --- 6. OpenResty Configuration ---
+echo "[6/7] Orchestrating Nginx Routing..."
+
+# Ensure conf.d inclusion
+if ! grep -q "include /etc/nginx/conf.d/\*.conf;" /etc/nginx/nginx.conf; then
+    sed -i '/http {/a \    include /etc/nginx/conf.d/*.conf;' /etc/nginx/nginx.conf
+fi
+mkdir -p /etc/nginx/conf.d
+
+# Dashboard and API Proxying
+# Using printf to safely handle $ variables in Nginx config
+printf 'server {
+    listen 81;
+    server_name _;
+    root /opt/sentinel/src/web/dist;
+    index index.html;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:3000/;
+        proxy_set_header Host \044host;
+        proxy_set_header X-Real-IP \044remote_addr;
+        proxy_set_header X-Forwarded-For \044proxy_add_x_forwarded_for;
+    }
+
+    location / {
+        try_files \044uri \044uri/ /index.html;
+    }
+}\n' > /etc/nginx/conf.d/sentinel-dashboard.conf
+
+rc-service openresty restart
+
+# --- 7. Tailscale Preparation ---
+echo "[7/7] Preparing Tailscale Network..."
+if [ ! -e /dev/net/tun ]; then
+    echo "!!! WARNING: /dev/net/tun not found. Tailscale will NOT start."
+    echo "!!! Run 'pct set <ID> --device-passthrough /dev/net/tun' on Proxmox host."
+else
+    echo "TUN device detected. Tailscale is ready."
+fi
+
+echo "--------------------------------------------------------"
+echo "INSTALLATION COMPLETE"
+echo "Dashboard: http://<BEACON_IP>:81"
+echo "Grafana:   http://<BEACON_IP>:3000"
+echo "NPM API:   Running on 127.0.0.1:3000"
+echo "--------------------------------------------------------"
