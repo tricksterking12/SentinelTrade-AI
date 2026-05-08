@@ -15,9 +15,13 @@ BEACON operates on the primary external bridge to manage incoming traffic and pr
 
 - **Bridge:** `vmbr1` (External / WAN)
 - **Protocol:** DHCP (Reservation Required)
-- **Port 81:** SentinelTrade UI V2 (`/dashboard`, `/admin`, `/login`)
-- **UI Stack:** React, Vite, Recharts, Framer Motion, Lucide React
-- **Themes:** Obsidian & Emerald (Sentinel), Carbon & Cobalt (Admin)
+- **Port 81:** SentinelTrade UI V2.5 (`/dashboard`, `/admin`, `/admin/users`, `/login`)
+- **UI Stack:** React 18, Vite, Tailwind CSS, Recharts, Framer Motion
+- **RBAC:** Role-Based Access Control (Sentinel / Admin)
+- **Assets Map:**
+    - `login-bg.png`: Portal background
+    - `logo.png`: Core identity asset
+    - `admin-hero.png`: Command Center header
 - **Tailscale:** Blocked: Pending Host Action (See `docs/PENDING_HOST_ACTIONS.md`)
 
 ## Hardware Dependencies (Dell R540)

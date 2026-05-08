@@ -1,5 +1,5 @@
 #!/bin/bash
-# SentinelTrade-AI: S0-BEACON Master Production Installation Script (UI V2 Optimized)
+# SentinelTrade-AI: S0-BEACON Master Production Installation Script (UI V2.5 RBAC)
 # Codified by Infrastructure Provisioning Agent - 2026-05-08
 # Target: Alpine Linux 3.20 (LXC) with 1GB+ RAM
 
@@ -92,8 +92,8 @@ chmod +x /etc/init.d/npm-admin
 rc-update add npm-admin default
 rc-service npm-admin restart
 
-# --- 5. Sentinel Dashboard Build (V2) ---
-echo "[5/7] Building SentinelTrade V2 Dual-Mode Dashboard..."
+# --- 5. Sentinel Dashboard Build (V2.5 RBAC) ---
+echo "[5/7] Building SentinelTrade V2.5 Dual-Mode Dashboard..."
 mkdir -p /opt/sentinel
 if [ ! -d "/opt/sentinel/.git" ]; then
     git clone https://github.com/tricksterking12/SentinelTrade-AI.git /opt/sentinel
@@ -105,13 +105,13 @@ fi
 mkdir -p src/web/public/assets/branding src/web/public/assets/icons
 
 cd src/web
-# Ensure V2 dependencies (recharts, framer-motion) are present
+# Ensure V2.5 dependencies (Tailwind, Recharts, Framer Motion)
 npm install
 export NODE_OPTIONS=--max-old-space-size=800
-# Vite build with potential tsc bypass for production speed
+# Vite build
 ./node_modules/.bin/vite build --emptyOutDir
 
-# Cleanup build artifacts to save space on 16GB disk
+# Cleanup build artifacts
 rm -rf node_modules
 
 # --- 6. OpenResty Configuration ---
@@ -123,7 +123,7 @@ if ! grep -q "include /etc/nginx/conf.d/\*.conf;" /etc/nginx/nginx.conf; then
 fi
 mkdir -p /etc/nginx/conf.d
 
-# Dashboard V2 and API Proxying (V2 Optimized)
+# Dashboard V2.5 and API Proxying
 printf 'server {
     listen 81;
     server_name _;
@@ -157,8 +157,8 @@ else
 fi
 
 echo "--------------------------------------------------------"
-echo "INSTALLATION COMPLETE (UI V2)"
+echo "INSTALLATION COMPLETE (UI V2.5 RBAC)"
 echo "Dashboard: http://<BEACON_IP>:81"
-echo "Routes:    /login, /dashboard, /admin"
-echo "Grafana:   http://<BEACON_IP>:3000"
+echo "Routes:    /login, /dashboard, /admin, /admin/users"
+echo "Assets:    /assets/branding/[logo, login-bg, admin-hero].png"
 echo "--------------------------------------------------------"
