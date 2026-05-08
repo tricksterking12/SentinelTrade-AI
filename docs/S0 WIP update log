@@ -1,0 +1,137 @@
+[S-0] BEACON: Master Provisioning Guide
+
+Status: Port 80 (OK) | Port 3000 (Fixed/0.0.0.0) | Port 81 (Build Failed - Syntax Error)
+
+1. Technical Specifications
+
+Specification
+
+Value
+
+Type
+
+LXC Container (Privileged)
+
+OS
+
+Alpine Linux 3.20
+
+Storage
+
+16GB (local-lvm)
+
+2. Master Installer (Fresh Build List)
+
+Run these blocks in sequence on a clean Alpine LXC to replicate the current successful state.
+
+Phase 1: Dependencies & Baseline
+
+apk update && apk upgrade
+apk add curl wget bash openresty nodejs npm python3 sqlite htop nano net-tools git openrc
+rc-update add devfs boot
+
+
+Phase 2: Grafana Network Exposure
+
+apk add grafana
+rc-update add grafana default
+# Inject environment overrides to bypass .ini limitations
+echo 'export GF_SERVER_HTTP_ADDR=0.0.0.0' > /etc/conf.d/grafana
+echo 'export GF_SERVER_HTTP_PORT=3000' >> /etc/conf.d/grafana
+# Ensure the config file matches
+sed -i 's/^;http_addr =.*/http_addr = 0.0.0.0/' /etc/grafana.ini
+rc-service grafana restart
+
+
+Phase 3: Nginx Proxy Manager Native Build (FIXED URL)
+
+# 1. Setup Directory and Clone (Clean Shell Version)
+mkdir -p /var/www/npm && cd /var/www/npm
+# Use direct URL to avoid shell bracket/parenthesis errors
+git clone [https://github.com/NginxProxyManager/nginx-proxy-manager.git](https://github.com/NginxProxyManager/nginx-proxy-manager.git) .
+
+# 2. Build Backend (Compilation Phase)
+# MUST be inside the /backend directory for npm to find package.json
+cd /var/www/npm/backend
+npm install --omit=dev
+
+# 3. Persistence Service
+cat <<EOF > /etc/init.d/npm-admin
+#!/sbin/openrc-run
+description="NPM Admin UI"
+command="/usr/bin/node"
+command_args="/var/www/npm/backend/index.js"
+directory="/var/www/npm/backend"
+pidfile="/run/npm-admin.pid"
+background="yes"
+EOF
+chmod +x /etc/init.d/npm-admin
+rc-update add npm-admin default
+service npm-admin start
+
+
+3. Command History & Debug Log
+
+Command
+
+Reason / Result
+
+find / -name "nginx-proxy-manager"
+
+Debug: Confirmed automated scripts failed to create directories in /opt.
+
+netstat -tulpn
+
+Debug: Identified Grafana was stuck on 127.0.0.1 despite .ini edits.
+
+echo 'export GF_SERVER...' >> /etc/conf.d/grafana
+
+Fix: Forced OpenRC to pass network variables directly to the Grafana binary.
+
+sed -i 's/^;http_addr.../'
+
+Fix: Automated the removal of semicolons to prevent manual editing errors.
+
+git clone (with brackets)
+
+Error: Terminal failed due to Markdown syntax in copy-paste. Fixed in Phase 3 above.
+
+npm install (in root)
+
+Error: Failed because package.json is located in /backend, not /npm.
+
+4. Troubleshooting & Verification
+
+Check
+
+Command
+
+Expected Output
+
+Network Bind
+
+netstat -tulpn
+
+0.0.0.0:3000 (Visible to LAN)
+
+Node Backend
+
+`ps aux
+
+grep node`
+
+Logs
+
+tail -f /var/log/messages
+
+Should show Service npm-admin started
+
+5. Audit Trail
+
+2026-05-07: Port 80 Verified (OpenResty Landing Page via browser).
+
+2026-05-07: Resolved "Loopback Trap": Grafana now correctly listens on 0.0.0.0:3000.
+
+2026-05-07: Migrated NPM installation from /opt (failed) to /var/www/npm (manual build).
+
+2026-05-07: Debugged npm-admin start failure; identified missing backend directory due to failed git clone.
