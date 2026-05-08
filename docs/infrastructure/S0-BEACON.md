@@ -15,7 +15,7 @@ BEACON operates on the primary external bridge to manage incoming traffic and pr
 
 - **Bridge:** `vmbr1` (External / WAN)
 - **Protocol:** DHCP (Reservation Required)
-- **Port 81:** NPM Admin UI (Production Build)
+- **Port 81:** SentinelTrade Dashboard (`/dashboard`, `/admin`)
 - **Port 3000:** NPM Backend & Grafana (Conflict Managed)
 - **Tailscale:** Blocked: Pending Host Action (See `docs/PENDING_HOST_ACTIONS.md`)
 
