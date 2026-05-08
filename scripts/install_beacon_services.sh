@@ -1,5 +1,5 @@
 #!/bin/bash
-# SentinelTrade-AI: S0-BEACON Master Production Installation Script (UI V2)
+# SentinelTrade-AI: S0-BEACON Master Production Installation Script (UI V2 Optimized)
 # Codified by Infrastructure Provisioning Agent - 2026-05-08
 # Target: Alpine Linux 3.20 (LXC) with 1GB+ RAM
 
@@ -101,12 +101,15 @@ else
     cd /opt/sentinel && git pull origin main
 fi
 
-cd /opt/sentinel/src/web
+# Asset Scaffolding
+mkdir -p src/web/public/assets/branding src/web/public/assets/icons
+
+cd src/web
 # Ensure V2 dependencies (recharts, framer-motion) are present
 npm install
 export NODE_OPTIONS=--max-old-space-size=800
 # Vite build with potential tsc bypass for production speed
-./node_modules/.bin/vite build
+./node_modules/.bin/vite build --emptyOutDir
 
 # Cleanup build artifacts to save space on 16GB disk
 rm -rf node_modules
@@ -120,7 +123,7 @@ if ! grep -q "include /etc/nginx/conf.d/\*.conf;" /etc/nginx/nginx.conf; then
 fi
 mkdir -p /etc/nginx/conf.d
 
-# Dashboard V2 and API Proxying
+# Dashboard V2 and API Proxying (V2 Optimized)
 printf 'server {
     listen 81;
     server_name _;
@@ -138,6 +141,9 @@ printf 'server {
         try_files \044uri \044uri/ /index.html;
     }
 }\n' > /etc/nginx/conf.d/sentinel-dashboard.conf
+
+# Legacy config cleanup
+rm -f /etc/nginx/conf.d/npm-admin.conf
 
 rc-service openresty restart
 

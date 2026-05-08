@@ -43,30 +43,31 @@ sed -i 's/^;http_addr =.*/http_addr = 0.0.0.0/' /etc/grafana.ini
 rc-service grafana restart
 ```
 
-### Phase 3: Nginx Proxy Manager (Production Build)
-With 1GB RAM, a full frontend build is now possible.
+### Phase 3: Nginx Proxy Manager & Sentinel Dashboard (V2 Build)
+With 1GB RAM, full production builds are optimized using a memory-capped Vite process.
 
 ```bash
-mkdir -p /var/www/npm && cd /var/www/npm
-git clone https://github.com/NginxProxyManager/nginx-proxy-manager.git .
+# 1. Repository Sync
+mkdir -p /opt/sentinel && cd /opt/sentinel
+git pull origin main
 
-# Frontend Build
-cd /var/www/npm/frontend
+# 2. Asset Scaffolding
+mkdir -p src/web/public/assets/branding src/web/public/assets/icons
+
+# 3. Clean UI V2 Build
+cd src/web
+rm -rf dist node_modules package-lock.json
 npm install
-# Bypass tsc if type errors persist
-./node_modules/.bin/vite build
+export NODE_OPTIONS=--max-old-space-size=800
+./node_modules/.bin/vite build --emptyOutDir
 
-# Backend Build
-cd /var/www/npm/backend
-npm install --omit=dev
-
-# Nginx Configuration (OpenResty)
-# Ensure /etc/nginx/nginx.conf includes /etc/nginx/conf.d/*.conf
-cat <<'EOF' > /etc/nginx/conf.d/npm-admin.conf
+# 4. Nginx Routing Alignment
+# Web root: /opt/sentinel/src/web/dist
+cat <<'EOF' > /etc/nginx/conf.d/sentinel-dashboard.conf
 server {
     listen 81;
     server_name _;
-    root /var/www/npm/frontend/dist;
+    root /opt/sentinel/src/web/dist;
     index index.html;
 
     location /api/ {
