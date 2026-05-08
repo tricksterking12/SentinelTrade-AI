@@ -15,8 +15,9 @@ BEACON operates on the primary external bridge to manage incoming traffic and pr
 
 - **Bridge:** `vmbr1` (External / WAN)
 - **Protocol:** DHCP (Reservation Required)
-- **Port 81:** SentinelTrade Dashboard (`/dashboard`, `/admin`)
-- **Port 3000:** NPM Backend & Grafana (Conflict Managed)
+- **Port 81:** SentinelTrade UI V2 (`/dashboard`, `/admin`, `/login`)
+- **UI Stack:** React, Vite, Recharts, Framer Motion, Lucide React
+- **Themes:** Obsidian & Emerald (Sentinel), Carbon & Cobalt (Admin)
 - **Tailscale:** Blocked: Pending Host Action (See `docs/PENDING_HOST_ACTIONS.md`)
 
 ## Hardware Dependencies (Dell R540)
