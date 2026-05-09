@@ -116,3 +116,11 @@ body {
   0% { transform: translate3d(0, 0, 0); }
   100% { transform: translate3d(-100%, 0, 0); }
 }
+
+.drop-shadow-emerald {
+  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.5));
+}
+
+.object-contain {
+  object-fit: contain !important;
+}
