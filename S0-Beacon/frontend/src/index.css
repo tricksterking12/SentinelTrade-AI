@@ -118,7 +118,7 @@ body {
 }
 
 .drop-shadow-emerald {
-  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.5));
+  filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.4));
 }
 
 .object-contain {
@@ -133,7 +133,12 @@ body {
   object-fit: cover !important;
 }
 
+/* Ensure the asset folder paths are respected */
 img[src*="logo"] {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  max-width: none !important; /* Prevent parent flex squishing */
   aspect-ratio: 1 / 1 !important;
   object-fit: contain !important;
   flex-shrink: 0 !important;

@@ -99,30 +99,27 @@ const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
 // --- Sub-Components ---
 
-const BrandedLogo = ({ size = 48, className = "" }) => {
-  const [error, setError] = useState(false);
-  
-  // Failsafe: If the image fails or is missing, render a high-quality SVG Shield
-  if (error) {
-    return (
-      <div style={{ width: size, height: size }} className={`text-emerald-500 ${className}`}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        </svg>
-      </div>
-    );
-  }
+const BrandedLogo = ({ size = 48, className = "", isIcon = false }) => {
+  // We are forcing the source to v1.4 to kill the cache
+  const assetPath = isIcon 
+    ? "/assets/branding/logo_icon_rmbg.png?v=1.4" 
+    : "/assets/branding/logo_square-rmbg.png?v=1.4";
 
   return (
     <div 
       style={{ width: size, height: size, minWidth: size, minHeight: size }} 
-      className={`relative flex items-center justify-center overflow-hidden ${className}`}
+      className={`relative flex items-center justify-center overflow-hidden flex-shrink-0 ${className}`}
     >
       <img 
-        src={`/assets/branding/logo_square-rmbg.png?v=1.3`}
-        onError={() => setError(true)}
+        src={assetPath}
+        alt="Sentinel Branding"
         className="w-full h-full object-contain pointer-events-none"
-        style={{ imageRendering: 'crisp-edges' }}
+        style={{ 
+          imageRendering: 'auto',
+          aspectRatio: '1/1'
+        }}
+        // If it really fails, we just log it instead of hiding it
+        onError={(e) => console.error("Asset failed to load:", e.currentTarget.src)}
       />
     </div>
   );
