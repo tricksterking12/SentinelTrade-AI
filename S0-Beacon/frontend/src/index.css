@@ -132,3 +132,9 @@ body {
   height: 192px !important; /* Fixed 12rem/h-48 */
   object-fit: cover !important;
 }
+
+img[src*="logo"] {
+  aspect-ratio: 1 / 1 !important;
+  object-fit: contain !important;
+  flex-shrink: 0 !important;
+}

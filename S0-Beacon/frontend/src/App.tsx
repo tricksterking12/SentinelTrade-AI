@@ -99,6 +99,35 @@ const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
 // --- Sub-Components ---
 
+const BrandedLogo = ({ size = 48, className = "" }) => {
+  const [error, setError] = useState(false);
+  
+  // Failsafe: If the image fails or is missing, render a high-quality SVG Shield
+  if (error) {
+    return (
+      <div style={{ width: size, height: size }} className={`text-emerald-500 ${className}`}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      style={{ width: size, height: size, minWidth: size, minHeight: size }} 
+      className={`relative flex items-center justify-center overflow-hidden ${className}`}
+    >
+      <img 
+        src={`/assets/branding/logo_square-rmbg.png?v=1.3`}
+        onError={() => setError(true)}
+        className="w-full h-full object-contain pointer-events-none"
+        style={{ imageRendering: 'crisp-edges' }}
+      />
+    </div>
+  );
+};
+
 const Sidebar = () => {
   const ctx = useContext(AppContext);
   const location = useLocation();
@@ -125,14 +154,7 @@ const Sidebar = () => {
     >
       {/* Sidebar Header / Logo */}
       <div className="p-6 flex flex-col items-center">
-        <div className="flex items-center justify-center w-12 h-12 mb-8 mx-auto" style={{ minWidth: '48px', minHeight: '48px' }}>
-          <img 
-            src="/assets/branding/logo_square-rmbg.png" 
-            alt="Sentinel Logo" 
-            className="w-full h-full object-contain"
-            style={{ filter: 'drop-shadow(0 0 8px rgba(16,185,129,0.5))' }}
-          />
-        </div>
+        <BrandedLogo size={48} className="mb-8 mx-auto drop-shadow-[0_0_10px_rgba(16,185,129,0.4)]" />
         <AnimatePresence>
           {ctx?.isSidebarOpen && (
             <motion.span 
@@ -807,13 +829,7 @@ const LoginPortal = () => {
         className="glass p-12 rounded-[2rem] border border-white/10 w-full max-w-md relative z-10 shadow-[0_0_80px_rgba(16,185,129,0.05)] mx-6"
       >
         <div className="flex flex-col items-center mb-12">
-          <div className="w-32 h-32 mx-auto mb-6 flex items-center justify-center bg-white/5 rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
-            <img 
-              src="/assets/branding/logo_square-rmbg.png" 
-              alt="SentinelTrade AI" 
-              className="w-24 h-24 object-contain"
-            />
-          </div>
+          <BrandedLogo size={120} className="mb-6 mx-auto" />
           <h1 className="text-4xl font-black tracking-tighter uppercase">Sentinel<span className="text-[var(--brand-primary)]">Trade</span></h1>
           <p className="text-[var(--text-secondary)] text-[10px] font-black tracking-[0.4em] uppercase mt-2">Secure Intelligence Portal</p>
         </div>
