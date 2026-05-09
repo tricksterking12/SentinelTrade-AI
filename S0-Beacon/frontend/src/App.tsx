@@ -100,10 +100,10 @@ const AppProvider = ({ children }: { children: React.ReactNode }) => {
 // --- Sub-Components ---
 
 const BrandedLogo = ({ size = 48, className = "", isIcon = false }) => {
-  // We are forcing the source to v1.4 to kill the cache
+  // V4.0: Root-Path Resolution with v1.6 Cache-Busting
   const assetPath = isIcon 
-    ? "/assets/branding/logo_icon_rmbg.png?v=1.4" 
-    : "/assets/branding/logo_square-rmbg.png?v=1.4";
+    ? "/logo_icon_rmbg.png?v=1.6" 
+    : "/logo_square-rmbg.png?v=1.6";
 
   return (
     <div 
@@ -118,9 +118,50 @@ const BrandedLogo = ({ size = 48, className = "", isIcon = false }) => {
           imageRendering: 'auto',
           aspectRatio: '1/1'
         }}
-        // If it really fails, we just log it instead of hiding it
         onError={(e) => console.error("Asset failed to load:", e.currentTarget.src)}
       />
+    </div>
+  );
+};
+
+const AssetLibrary = () => {
+  const assets = [
+    { name: 'Primary Logo (Square)', path: '/logo_square-rmbg.png' },
+    { name: 'Square Logo (Standard)', path: '/logo_square.png' },
+    { name: 'Favicon (Transparent)', path: '/logo_icon_rmbg.png' },
+    { name: 'High-Res Icon', path: '/logo_icon.png' },
+    { name: 'Standard Wide Logo', path: '/logo.png' },
+    { name: 'Login Backdrop', path: '/login_bg.png' },
+    { name: 'Admin Hero Banner', path: '/admin_hero.png' },
+  ];
+
+  return (
+    <div className="p-8 space-y-8 max-w-7xl mx-auto">
+      <header>
+        <h1 className="text-3xl font-black tracking-tight text-emerald-400 uppercase">System Asset Library</h1>
+        <p className="text-[var(--text-secondary)] text-sm">V4.0 Root-Path Verification Matrix</p>
+      </header>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {assets.map((asset) => (
+          <div key={asset.path} className="glass rounded-3xl border border-[var(--border-color)] overflow-hidden flex flex-col">
+            <div className="flex-1 bg-black/40 p-12 flex items-center justify-center min-h-[240px]">
+               <img 
+                src={`${asset.path}?v=1.6`} 
+                alt={asset.name} 
+                className="max-w-full max-h-48 object-contain drop-shadow-2xl" 
+                onError={(e) => {
+                  e.currentTarget.src = "https://via.placeholder.com/150/10b981/FFFFFF?text=MISSING";
+                }}
+               />
+            </div>
+            <div className="p-6 bg-white/5 border-t border-[var(--border-color)]">
+               <div className="text-xs font-black text-emerald-400 uppercase tracking-widest mb-1">{asset.name}</div>
+               <div className="text-[10px] text-[var(--text-secondary)] mono truncate">{asset.path}</div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
@@ -136,6 +177,7 @@ const Sidebar = () => {
     { label: 'Active Trades', icon: Zap, path: '/trades', mode: 'sentinel' },
     { label: 'Node Health', icon: Activity, path: '/admin', mode: 'admin' },
     { label: 'User Mgmt', icon: Users, path: '/admin/users', mode: 'admin' },
+    { label: 'Asset Library', icon: Shield, path: '/admin/assets', mode: 'admin' },
     { label: 'Global Kill-Switch', icon: Power, path: '/admin/kill-switch', mode: 'admin' },
   ];
 
@@ -538,7 +580,7 @@ const CommandCenter = () => {
     <div className="p-8 space-y-8 max-w-7xl mx-auto">
       {/* Admin Hero Banner */}
       <div className="w-full h-48 rounded-3xl overflow-hidden relative border border-blue-500/30 shadow-2xl">
-         <img src="/assets/branding/admin_hero.png" alt="Admin Dashboard Header" className="admin-hero-banner w-full opacity-60" />
+         <img src="/admin_hero.png?v=1.6" alt="Admin Dashboard Header" className="admin-hero-banner w-full opacity-60" />
          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent flex flex-col justify-end p-8">
             <h1 className="text-4xl font-black tracking-tighter text-white mb-2 uppercase">Command Center</h1>
             <p className="text-blue-400 font-bold tracking-[0.3em] text-xs uppercase">System Administrative Operations</p>
@@ -817,7 +859,7 @@ const LoginPortal = () => {
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#050505] sentinel-theme">
       {/* Background Image Layer */}
       <div className="absolute inset-0 z-0">
-         <img src="/assets/branding/login_bg.png" alt="Login Background" className="w-full h-full object-cover opacity-20 blur-sm scale-105" />
+         <img src="/login_bg.png?v=1.6" alt="Login Background" className="w-full h-full object-cover opacity-20 blur-sm scale-105" />
       </div>
 
       <motion.div 
@@ -916,6 +958,7 @@ const AppShell = () => {
             <Route path="/trades" element={<div className="p-8 text-center text-[var(--text-secondary)] uppercase font-black tracking-widest mt-20">Active Trades Module: Ready for S2-KINETIC link</div>} />
             <Route path="/admin" element={ctx.isAdmin ? <CommandCenter /> : <Navigate to="/dashboard" />} />
             <Route path="/admin/users" element={ctx.isAdmin ? <UserManagement /> : <Navigate to="/dashboard" />} />
+            <Route path="/admin/assets" element={ctx.isAdmin ? <AssetLibrary /> : <Navigate to="/dashboard" />} />
             <Route path="/admin/kill-switch" element={ctx.isAdmin ? <div className="p-8 text-center text-red-500 uppercase font-black tracking-widest mt-20 text-3xl">Global Kill-Switch Primed</div> : <Navigate to="/dashboard" />} />
             <Route path="*" element={<Navigate to="/dashboard" />} />
           </Routes>
