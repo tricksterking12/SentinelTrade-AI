@@ -123,4 +123,12 @@ body {
 
 .object-contain {
   object-fit: contain !important;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* Force standard height for the Admin Hero */
+.admin-hero-banner {
+  height: 192px !important; /* Fixed 12rem/h-48 */
+  object-fit: cover !important;
 }
