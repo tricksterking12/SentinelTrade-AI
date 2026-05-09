@@ -125,8 +125,13 @@ const Sidebar = () => {
     >
       {/* Sidebar Header / Logo */}
       <div className="p-6 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-[var(--border-color)]">
-           <img src="/assets/branding/logo.png" alt="SentinelTrade Logo" className="w-full h-full object-cover" />
+        <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-[var(--border-color)] aspect-square bg-emerald-500/5">
+           <img 
+            src="/assets/branding/logo_square-rmbg.png" 
+            alt="SentinelTrade Logo" 
+            className="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
+            style={{ imageRendering: 'crisp-edges' }}
+           />
         </div>
         <AnimatePresence>
           {ctx?.isSidebarOpen && (
@@ -514,7 +519,7 @@ const CommandCenter = () => {
     <div className="p-8 space-y-8 max-w-7xl mx-auto">
       {/* Admin Hero Banner */}
       <div className="w-full h-48 rounded-3xl overflow-hidden relative border border-blue-500/30 shadow-2xl">
-         <img src="/assets/branding/admin-hero.png" alt="Admin Dashboard Header" className="w-full h-full object-cover opacity-60" />
+         <img src="/assets/branding/admin_hero.png" alt="Admin Dashboard Header" className="w-full h-full object-cover opacity-60" />
          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent flex flex-col justify-end p-8">
             <h1 className="text-4xl font-black tracking-tighter text-white mb-2 uppercase">Command Center</h1>
             <p className="text-blue-400 font-bold tracking-[0.3em] text-xs uppercase">System Administrative Operations</p>
@@ -798,7 +803,7 @@ const LoginPortal = () => {
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#050505] sentinel-theme">
       {/* Background Image Layer */}
       <div className="absolute inset-0 z-0">
-         <img src="/assets/branding/login-bg.png" alt="Login Background" className="w-full h-full object-cover opacity-20 blur-sm scale-105" />
+         <img src="/assets/branding/login_bg.png" alt="Login Background" className="w-full h-full object-cover opacity-20 blur-sm scale-105" />
       </div>
 
       {/* Background Ticker */}
@@ -818,7 +823,12 @@ const LoginPortal = () => {
         <div className="flex flex-col items-center mb-12">
           <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-transparent flex items-center justify-center mb-6 border border-emerald-500/30 relative group">
              <div className="absolute inset-0 bg-emerald-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
-             <img src="/assets/branding/logo.png" alt="Logo" className="w-12 h-12 rounded-lg object-cover z-10" />
+             <img 
+              src="/assets/branding/logo_square-rmbg.png" 
+              alt="Logo" 
+              className="w-12 h-12 rounded-lg object-contain z-10 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
+              style={{ imageRendering: 'crisp-edges' }}
+             />
           </div>
           <h1 className="text-4xl font-black tracking-tighter uppercase">Sentinel<span className="text-[var(--brand-primary)]">Trade</span></h1>
           <p className="text-[var(--text-secondary)] text-[10px] font-black tracking-[0.4em] uppercase mt-2">Secure Intelligence Portal</p>
