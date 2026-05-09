@@ -125,11 +125,11 @@ const Sidebar = () => {
     >
       {/* Sidebar Header / Logo */}
       <div className="p-6 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-[var(--border-color)] aspect-square bg-emerald-500/5">
+        <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border border-[var(--border-color)] aspect-square bg-emerald-500/5">
            <img 
             src="/assets/branding/logo_square-rmbg.png" 
             alt="SentinelTrade Logo" 
-            className="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
+            className="w-12 h-12 object-contain drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
             style={{ imageRendering: 'crisp-edges' }}
            />
         </div>
@@ -794,25 +794,11 @@ const LoginPortal = () => {
     navigate('/dashboard');
   };
 
-  const tickerItems = [
-    'NVDA +2.45%', 'TSLA -1.12%', 'AMD +0.89%', 'BTC $64,231', 'ETH $3,452',
-    'SENTINEL NODE-0 ONLINE', 'CEREBRO INFERENCE READY', 'KINETIC API STABLE'
-  ];
-
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#050505] sentinel-theme">
       {/* Background Image Layer */}
       <div className="absolute inset-0 z-0">
          <img src="/assets/branding/login_bg.png" alt="Login Background" className="w-full h-full object-cover opacity-20 blur-sm scale-105" />
-      </div>
-
-      {/* Background Ticker */}
-      <div className="ticker-wrap opacity-40 z-1">
-        <div className="ticker">
-          {[...tickerItems, ...tickerItems].map((item, i) => (
-            <span key={i} className="ticker-item">{item}</span>
-          ))}
-        </div>
       </div>
 
       <motion.div 
@@ -821,12 +807,12 @@ const LoginPortal = () => {
         className="glass p-12 rounded-[2rem] border border-white/10 w-full max-w-md relative z-10 shadow-[0_0_80px_rgba(16,185,129,0.05)] mx-6"
       >
         <div className="flex flex-col items-center mb-12">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-transparent flex items-center justify-center mb-6 border border-emerald-500/30 relative group">
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-transparent flex items-center justify-center mb-6 border border-emerald-500/30 relative group">
              <div className="absolute inset-0 bg-emerald-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
              <img 
               src="/assets/branding/logo_square-rmbg.png" 
               alt="Logo" 
-              className="w-12 h-12 rounded-lg object-contain z-10 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
+              className="max-w-[150px] w-32 h-auto object-contain z-10 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
               style={{ imageRendering: 'crisp-edges' }}
              />
           </div>
