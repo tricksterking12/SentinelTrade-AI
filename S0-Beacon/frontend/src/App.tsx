@@ -206,11 +206,12 @@ const Sidebar = () => {
     <motion.aside 
       initial={false}
       animate={{ width: ctx?.isSidebarOpen ? 280 : 80 }}
-      className={`h-screen sticky top-0 flex flex-col border-r border-[var(--border-color)] glass z-[60] transition-colors duration-500 ${ctx?.isAdmin ? 'bg-slate-950/50' : 'bg-black/50'}`}
+      className={`h-screen sticky top-0 flex flex-col border-r border-[var(--border-color)] z-[60] transition-colors duration-500 ${ctx?.isAdmin ? 'bg-slate-950/95' : 'bg-black/95'} backdrop-blur-md`}
     >
       {/* Sidebar Header / Logo */}
       <div className="p-6 flex flex-col items-center">
-        <BrandedLogo size={48} className="mb-8 mx-auto drop-shadow-[0_0_10px_rgba(16,185,129,0.4)]" />
+        {/* V4.0 Refined: Sidebar Icon at 48px (w-12) */}
+        <BrandedLogo size={48} isIcon={true} className="mb-8 mx-auto drop-shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
         <AnimatePresence>
           {ctx?.isSidebarOpen && (
             <motion.span 
@@ -274,8 +275,10 @@ const TopBar = () => {
   const [showNotifications, setShowNotifications] = useState(false);
 
   return (
-    <header className="h-16 border-b border-[var(--border-color)] glass px-6 flex items-center justify-between z-50 sticky top-0">
+    <header className="h-16 border-b border-[var(--border-color)] bg-[var(--bg-primary)]/95 backdrop-blur-md px-6 flex items-center justify-between z-50 sticky top-0">
       <div className="flex items-center gap-4">
+        {/* V4.0 Refined: Small Mobile/Header Icon at 40px (w-10) */}
+        <BrandedLogo size={40} isIcon={true} className="lg:hidden" />
         <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-widest hidden lg:block">
           Cluster Status: <span className="text-emerald-400">Operational</span>
         </h2>
@@ -298,7 +301,7 @@ const TopBar = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
-                className="absolute right-0 mt-3 w-80 glass rounded-xl border border-[var(--border-color)] overflow-hidden shadow-2xl"
+                className="absolute right-0 mt-3 w-80 bg-[#0a0a0a] rounded-xl border border-[var(--border-color)] overflow-hidden shadow-2xl z-50"
               >
                 <div className="p-4 border-b border-[var(--border-color)] font-semibold text-sm">Intelligence Feed</div>
                 <div className="max-h-64 overflow-y-auto">
@@ -320,12 +323,12 @@ const TopBar = () => {
             <div className="text-sm font-semibold">{ctx?.user?.name}</div>
             <div className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wider">{ctx?.user?.role} Mode</div>
           </div>
-          <div className="w-9 h-9 rounded-full bg-[var(--bg-accent)] border border-[var(--brand-primary)] flex items-center justify-center font-bold text-[var(--brand-primary)] text-sm">
+          <div className="w-9 h-9 rounded-full bg-[var(--bg-accent)] border border-[var(--brand-primary)] flex items-center justify-center font-bold text-[var(--brand-primary)] text-sm cursor-pointer">
             {ctx?.user?.avatar}
           </div>
           
-          {/* Dropdown on hover */}
-          <div className="absolute right-0 top-full mt-2 w-48 glass border border-[var(--border-color)] rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all p-2 shadow-xl">
+          {/* Dropdown on hover/click */}
+          <div className="absolute right-0 top-full mt-2 w-48 bg-[#0a0a0a] border border-[var(--border-color)] rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all p-2 shadow-xl z-50">
              <button onClick={ctx?.toggleRole} className="w-full flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg text-sm text-[var(--text-secondary)]">
                 <Settings size={16} /> Switch Mode
              </button>
@@ -890,11 +893,11 @@ const LoginPortal = () => {
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="glass p-12 rounded-[2rem] border border-white/10 w-full max-w-md relative z-10 shadow-[0_0_80px_rgba(16,185,129,0.05)] mx-6"
+        className="bg-black/80 backdrop-blur-3xl p-12 rounded-[2rem] border border-white/10 w-full max-w-md relative z-10 shadow-[0_0_100px_rgba(16,185,129,0.1)] mx-6"
       >
         <div className="flex flex-col items-center mb-12">
-          {/* V4.0: Icon-Only Logo to avoid double-branding */}
-          <BrandedLogo size={64} isIcon={true} className="mb-6 mx-auto" />
+          {/* V4.0 Refined: Centered Logo at 128px with intensified shadow */}
+          <BrandedLogo size={128} isIcon={true} className="mb-8 mx-auto drop-shadow-[0_0_25px_rgba(16,185,129,0.6)]" />
           <h1 className="text-4xl font-black tracking-tighter uppercase">Sentinel<span className="text-[var(--brand-primary)]">Trade</span></h1>
           <p className="text-[var(--text-secondary)] text-[10px] font-black tracking-[0.4em] uppercase mt-2">Secure Intelligence Portal</p>
         </div>
