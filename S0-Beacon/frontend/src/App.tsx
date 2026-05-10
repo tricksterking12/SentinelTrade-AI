@@ -97,42 +97,62 @@ const AppProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+// --- Asset Configuration (V4.0) ---
+const ASSETS = {
+  LOGO_SQUARE: "/logo_square-rmbg.png?v=1.6.0",
+  LOGO_FULL: "/logo.png?v=1.6.0",
+  ICON: "/logo_icon_rmbg.png?v=1.6.0",
+  LOGIN_BG: "/login_bg.png?v=1.6.0",
+  ADMIN_HERO: "/admin_hero.png?v=1.6.0",
+};
+
+const ImageWithVerification = ({ src, alt, className = "", style = {} }: { src: string, alt: string, className?: string, style?: React.CSSProperties }) => {
+  const [error, setError] = useState(false);
+  if (error) {
+    return (
+      <div className={`flex flex-col items-center justify-center border-2 border-dashed border-red-500/50 rounded-lg p-2 bg-red-500/5 ${className}`} style={style}>
+        <AlertTriangle className="text-red-500 mb-1" size={16} />
+        <span className="text-[8px] font-bold text-red-400 uppercase">Missing: {src.split('?')[0]}</span>
+      </div>
+    );
+  }
+  return (
+    <img 
+      src={src} 
+      alt={alt} 
+      className={className} 
+      style={{ ...style, imageRendering: 'auto' }} 
+      onError={() => setError(true)} 
+    />
+  );
+};
+
 // --- Sub-Components ---
 
 const BrandedLogo = ({ size = 48, className = "", isIcon = false }) => {
-  // V4.0: Root-Path Resolution with v1.6 Cache-Busting
-  const assetPath = isIcon 
-    ? "/logo_icon_rmbg.png?v=1.6" 
-    : "/logo_square-rmbg.png?v=1.6";
-
+  const src = isIcon ? ASSETS.ICON : ASSETS.LOGO_SQUARE;
   return (
     <div 
       style={{ width: size, height: size, minWidth: size, minHeight: size }} 
       className={`relative flex items-center justify-center overflow-hidden flex-shrink-0 ${className}`}
     >
-      <img 
-        src={assetPath}
+      <ImageWithVerification 
+        src={src}
         alt="Sentinel Branding"
         className="w-full h-full object-contain pointer-events-none"
-        style={{ 
-          imageRendering: 'auto',
-          aspectRatio: '1/1'
-        }}
-        onError={(e) => console.error("Asset failed to load:", e.currentTarget.src)}
+        style={{ aspectRatio: '1/1' }}
       />
     </div>
   );
 };
 
 const AssetLibrary = () => {
-  const assets = [
-    { name: 'Primary Logo (Square)', path: '/logo_square-rmbg.png' },
-    { name: 'Square Logo (Standard)', path: '/logo_square.png' },
-    { name: 'Favicon (Transparent)', path: '/logo_icon_rmbg.png' },
-    { name: 'High-Res Icon', path: '/logo_icon.png' },
-    { name: 'Standard Wide Logo', path: '/logo.png' },
-    { name: 'Login Backdrop', path: '/login_bg.png' },
-    { name: 'Admin Hero Banner', path: '/admin_hero.png' },
+  const assetItems = [
+    { name: 'Primary Logo (Square)', path: ASSETS.LOGO_SQUARE },
+    { name: 'Full Brand Logo', path: ASSETS.LOGO_FULL },
+    { name: 'System Icon', path: ASSETS.ICON },
+    { name: 'Login Backdrop', path: ASSETS.LOGIN_BG },
+    { name: 'Admin Hero Banner', path: ASSETS.ADMIN_HERO },
   ];
 
   return (
@@ -143,16 +163,13 @@ const AssetLibrary = () => {
       </header>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {assets.map((asset) => (
+        {assetItems.map((asset) => (
           <div key={asset.path} className="glass rounded-3xl border border-[var(--border-color)] overflow-hidden flex flex-col">
             <div className="flex-1 bg-black/40 p-12 flex items-center justify-center min-h-[240px]">
-               <img 
-                src={`${asset.path}?v=1.6`} 
+               <ImageWithVerification 
+                src={asset.path} 
                 alt={asset.name} 
                 className="max-w-full max-h-48 object-contain drop-shadow-2xl" 
-                onError={(e) => {
-                  e.currentTarget.src = "https://via.placeholder.com/150/10b981/FFFFFF?text=MISSING";
-                }}
                />
             </div>
             <div className="p-6 bg-white/5 border-t border-[var(--border-color)]">
@@ -580,7 +597,11 @@ const CommandCenter = () => {
     <div className="p-8 space-y-8 max-w-7xl mx-auto">
       {/* Admin Hero Banner */}
       <div className="w-full h-48 rounded-3xl overflow-hidden relative border border-blue-500/30 shadow-2xl">
-         <img src="/admin_hero.png?v=1.6" alt="Admin Dashboard Header" className="admin-hero-banner w-full opacity-60" />
+         <ImageWithVerification 
+          src={ASSETS.ADMIN_HERO} 
+          alt="Admin Dashboard Header" 
+          className="admin-hero-banner w-full opacity-60 object-cover" 
+         />
          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent flex flex-col justify-end p-8">
             <h1 className="text-4xl font-black tracking-tighter text-white mb-2 uppercase">Command Center</h1>
             <p className="text-blue-400 font-bold tracking-[0.3em] text-xs uppercase">System Administrative Operations</p>
@@ -859,7 +880,11 @@ const LoginPortal = () => {
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#050505] sentinel-theme">
       {/* Background Image Layer */}
       <div className="absolute inset-0 z-0">
-         <img src="/login_bg.png?v=1.6" alt="Login Background" className="w-full h-full object-cover opacity-20 blur-sm scale-105" />
+         <ImageWithVerification 
+          src={ASSETS.LOGIN_BG} 
+          alt="Login Background" 
+          className="w-full h-full object-cover opacity-20 blur-sm scale-105" 
+         />
       </div>
 
       <motion.div 
@@ -868,7 +893,8 @@ const LoginPortal = () => {
         className="glass p-12 rounded-[2rem] border border-white/10 w-full max-w-md relative z-10 shadow-[0_0_80px_rgba(16,185,129,0.05)] mx-6"
       >
         <div className="flex flex-col items-center mb-12">
-          <BrandedLogo size={120} className="mb-6 mx-auto" />
+          {/* V4.0: Icon-Only Logo to avoid double-branding */}
+          <BrandedLogo size={64} isIcon={true} className="mb-6 mx-auto" />
           <h1 className="text-4xl font-black tracking-tighter uppercase">Sentinel<span className="text-[var(--brand-primary)]">Trade</span></h1>
           <p className="text-[var(--text-secondary)] text-[10px] font-black tracking-[0.4em] uppercase mt-2">Secure Intelligence Portal</p>
         </div>
